@@ -77,18 +77,18 @@ public Action:Event_ItemFound(Handle:event, const String:name[], bool:dontBroadc
     curl_easy_setopt_string(curl, CURLOPT_URL, TARGET_URL);
     curl_easy_setopt_int(curl, CURLOPT_PORT, TARGET_PORT);
     curl_easy_setopt_handle(curl, CURLOPT_HTTPPOST, formpost);
-    curl_easy_perform_thread(curl, onComplete);
+    curl_easy_perform_thread(curl, onComplete, formpost);
   }
 
   return Plugin_Continue;
  }
 
-public onComplete(Handle:hndl, CURLcode: code, any:data) {
+public onComplete(Handle:curl, CURLcode: code, any:formpost) {
   if(code != CURLE_OK) {
     new String:error_buffer[256];
     curl_easy_strerror(code, error_buffer, sizeof(error_buffer));
   }
 
-  CloseHandle(hndl);
-  //CloseHandle(formpost);
+  CloseHandle(curl);
+  CloseHandle(formpost);
 }
