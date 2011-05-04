@@ -21,11 +21,17 @@ new CURL_Default_opt[][2] = {
 
 #define CURL_DEFAULT_OPT(%1) curl_easy_setopt_int_array(%1, CURL_Default_opt, sizeof(CURL_Default_opt))
 
- public OnPluginStart() {
-   CreateConVar("sm_itemlogger", PLUGIN_VERSION, "Item Found Logger plugin Version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
+new Handle:g_targetURL;
+new Handle:g_targetPort;
 
-   HookEvent("item_found", Event_ItemFound);
- }
+public OnPluginStart() {
+  CreateConVar("ifl_version", PLUGIN_VERSION, "Item Found Logger plugin version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
+  g_targetURL = CreateConVar("ifl_targeturl", TARGET_URL, "Item Found Logger target url", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
+  g_targetPort = CreateConVar("ifl_targetport", "", "Item Found Logger target port", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
+  SetConVarInt(g_targetPort, TARGET_PORT);
+
+  HookEvent("item_found", Event_ItemFound);
+}
 
 public Action:Event_ItemFound(Handle:event, const String:name[], bool:dontBroadcast) {
   new String:steamid[64];
@@ -72,10 +78,14 @@ public Action:Event_ItemFound(Handle:event, const String:name[], bool:dontBroadc
     new Handle:headerlist = curl_slist();
     curl_slist_append(headerlist, "Expect:");
 
+    new String:targetURL[256];
+    GetConVarString(g_targetURL, targetURL, sizeof(targetURL));
+    new targetPort = GetConVarInt(g_targetPort);
+
     curl_easy_setopt_int(curl, CURLOPT_POST, 1);
     curl_easy_setopt_handle(curl, CURLOPT_HTTPHEADER, headerlist);
-    curl_easy_setopt_string(curl, CURLOPT_URL, TARGET_URL);
-    curl_easy_setopt_int(curl, CURLOPT_PORT, TARGET_PORT);
+    curl_easy_setopt_string(curl, CURLOPT_URL, targetURL);
+    curl_easy_setopt_int(curl, CURLOPT_PORT, targetPort);
     curl_easy_setopt_handle(curl, CURLOPT_HTTPPOST, formpost);
     curl_easy_perform_thread(curl, onComplete, formpost);
   }
