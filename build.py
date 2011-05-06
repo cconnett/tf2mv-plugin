@@ -1,4 +1,3 @@
-import yaml
 import subprocess
 import os.path
 import sys
@@ -17,11 +16,9 @@ if not all(os.path.exists(path) for path in requiredFiles):
     print "https://code.google.com/p/sourcemod-curl-extension/downloads/list"
     sys.exit(2)
 
-config = yaml.load(file('../config.yml').read())
-sitefile = file('site.inc', 'w')
+versionfile = file('version.inc', 'w')
 version = subprocess.Popen(['git', 'describe'], stdout=subprocess.PIPE).communicate()[0].strip()
-print >> sitefile, '#define PLUGIN_VERSION  "{0}"'.format(version)
-print >> sitefile, '#define TARGET_URL      "{0[application][url]}"'.format(config)
-print >> sitefile, '#define TARGET_PORT      {0[application][port]}'.format(config)
-sitefile.close()
-subprocess.call(['./sourcemod/addons/sourcemod/scripting/spcomp', 'tf2mv.sp', '-psite.inc'])
+print >> versionfile, '#define PLUGIN_VERSION "{0}"'.format(version)
+versionfile.write(file('config.inc').read())
+versionfile.close()
+subprocess.call(['./sourcemod/addons/sourcemod/scripting/spcomp', 'tf2mv.sp', '-pversion.inc'])
