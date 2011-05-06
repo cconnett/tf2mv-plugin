@@ -3,3 +3,5 @@
 *.smx
 version.inc
 sourcemod/
+sourcemod.tar.gz
+curl.zip
