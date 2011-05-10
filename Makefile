@@ -1,10 +1,13 @@
 all: tf2mv.smx
 
+.PHONY: version.inc
+
 tf2mv.smx: tf2mv.sp sourcemod/addons/sourcemod/scripting/spcomp cURL.inc version.inc
 	./sourcemod/addons/sourcemod/scripting/spcomp tf2mv.sp -pversion.inc
 
 version.inc:
-	echo -n "#define PLUGIN_VERSION $(git describe)" > version.inc
+	cp config.inc version.inc
+	bash -c 'echo "#define PLUGIN_VERSION  \"`git describe`\""' >> version.inc
 
 sourcemod/addons/sourcemod/scripting/spcomp: sourcemod.tar.gz
 	mkdir -p sourcemod
